@@ -1673,6 +1673,7 @@ const description = document.getElementById("description");
 const price = document.getElementById("price");
 const comparedPrice = document.getElementById("compared-price");
 const addToCartBtn = document.querySelector("a.btn");
+const variantsDiv = document.querySelector("#variants");
 
 // load static data
 loadStaticData();
@@ -1686,7 +1687,41 @@ loadSmallImages(jsonData.product.variants[0].id);
 loadPrices(jsonData.product.variants[0].id);
 
 loadOptions();
-function loadOptions() {}
+// load options from js
+function loadOptions() {
+  js.options.forEach((optionRowData) => {
+    const labelAndRow = createOptionsRow(optionRowData);
+    function createOptionsRow(optionRowData) {
+      const label = document.createElement("label");
+      label.innerText = optionRowData.name;
+
+      const row = document.createElement("div");
+      row.className = "row";
+      row.id = `${optionRowData.position}`;
+      row.position = `${optionRowData.position}`;
+      optionRowData.values.forEach((value) => {
+        row.appendChild(createVariantButton(value));
+        function createVariantButton(value) {
+          const btn = document.createElement("btn");
+          btn.className = "btn";
+          btn.value = value;
+          btn.innerText = value;
+          btn.addEventListener("click", (e) => {
+            onVariantBtnClick(e);
+            function onVariantBtnClick(e) {
+              console.log(e.target, "button was clicked");
+            }
+          });
+          return btn;
+        }
+      });
+      return [label, row];
+    }
+    labelAndRow.forEach((e) => {
+      variantsDiv.appendChild(e);
+    });
+  });
+}
 
 // declare functions
 
