@@ -1682,46 +1682,37 @@ loadStaticData();
 const sortedImageObj = createImageObj(jsonData);
 console.log(`sortedImageObj`, sortedImageObj);
 
-// load small images from our sortedImageObj ,load price , compared price,
-loadSmallImages(jsonData.product.variants[0].id);
-loadPrices(jsonData.product.variants[0].id);
+// declare selectedOptions array to store the values of
+// selected options by a user
+let option1 = "Blue",
+  option2 = "Medium",
+  option3 = "Tartan";
+const selectedOptions = [option1, option2, option3];
 
-loadOptions();
-// load options from js
-function loadOptions() {
-  js.options.forEach((optionRowData) => {
-    const labelAndRow = createOptionsRow(optionRowData);
-    function createOptionsRow(optionRowData) {
-      const label = document.createElement("label");
-      label.innerText = optionRowData.name;
-
-      const row = document.createElement("div");
-      row.className = "row";
-      row.id = `${optionRowData.position}`;
-      row.position = `${optionRowData.position}`;
-      optionRowData.values.forEach((value) => {
-        row.appendChild(createVariantButton(value));
-        function createVariantButton(value) {
-          const btn = document.createElement("btn");
-          btn.className = "btn";
-          btn.value = value;
-          btn.innerText = value;
-          btn.addEventListener("click", (e) => {
-            onVariantBtnClick(e);
-            function onVariantBtnClick(e) {
-              console.log(e.target, "button was clicked");
-            }
-          });
-          return btn;
-        }
-      });
-      return [label, row];
-    }
-    labelAndRow.forEach((e) => {
-      variantsDiv.appendChild(e);
-    });
-  });
+loadDynamicContent();
+function loadDynamicContent() {
+  // load small images from our sortedImageObj ,load price , compared price,
+  loadSmallImages(getVariantID().variantIDforimg);
+  loadPrices(getVariantID().variantID);
 }
+
+// load options from js
+loadOptionsDom();
+// aslo loads variant option buttons
+
+// 1. make sold out visible on add to cart
+// # check if selected combination is available -
+// # then display the output on addtoCart btn
+onClickBtnChangeFunctionality();
+function onClickBtnChangeFunctionality() {
+  variantBtnColorChange();
+  addToCartBtnChange(...checkForCombination());
+}
+
+// 2. assist user in selecting options
+// - create possibility array
+
+//#endregion
 
 // declare functions
 
@@ -1758,6 +1749,7 @@ function createImageObj(jsonData) {
 
 // load small images
 function loadSmallImages(variantID) {
+  smallImagesRow.innerHTML = "";
   sortedImageObj[`${variantID}`].forEach((imageUrl) => {
     smallImagesRow.appendChild(createSmallImage(imageUrl));
   });
@@ -1796,4 +1788,119 @@ function loadPrices(variantID) {
 function displayPrice(givenPrice, givenComparePrice) {
   price.innerText = String(givenPrice).slice(0, -2) + " INR";
   comparedPrice.innerText = String(givenComparePrice).slice(0, -2) + " INR";
+}
+
+// load options in dom from js
+function loadOptionsDom() {
+  js.options.forEach((optionRowData) => {
+    const labelAndRow = createOptionsRow(optionRowData);
+    labelAndRow.forEach((e) => {
+      variantsDiv.appendChild(e);
+    });
+  });
+}
+
+function createOptionsRow(optionRowData) {
+  const label = document.createElement("label");
+  label.innerText = optionRowData.name;
+
+  const row = document.createElement("div");
+  row.className = "row";
+  row.id = `${optionRowData.position}`;
+  row.position = `${optionRowData.position}`;
+  optionRowData.values.forEach((value) => {
+    row.appendChild(createVariantButton(value));
+  });
+  return [label, row];
+}
+
+function createVariantButton(value) {
+  const btn = document.createElement("btn");
+  btn.className = "btn";
+  btn.style.margin = "10px";
+  btn.value = value;
+  btn.style.padding = "4px 30px";
+  btn.innerText = value;
+  btn.addEventListener("click", (e) => {
+    onVariantBtnClick(e);
+  });
+  return btn;
+}
+
+function onVariantBtnClick(e) {
+  selectedOptions[e.target.parentElement.id - 1] = e.target.value;
+
+  //changes btn attributes - (btn background color to black)
+  onClickBtnChangeFunctionality();
+  // change dynmaic content (images and prices)
+  loadDynamicContent();
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+// checkForCombination from js
+function checkForCombination() {
+  let combinationAvailable = false;
+  let combinationMade = false;
+
+  for (let i = 0; i < js.variants.length; i++) {
+    if (arraysEqual(js.variants[i].options, selectedOptions)) {
+      combinationMade = true;
+      if (js.variants[i].available) {
+        combinationAvailable = true;
+      }
+      break;
+    }
+  }
+  return [combinationMade, combinationAvailable];
+}
+
+function addToCartBtnChange(combinationMade, combinationAvailable) {
+  console.log(`combinationMade`, combinationMade);
+  console.log(`combinationAvailable`, combinationAvailable);
+
+  addToCartBtn.style.backgroundColor =
+    combinationMade && combinationAvailable ? "#ff523b" : "#808080";
+  addToCartBtn.innerText = combinationMade
+    ? combinationAvailable
+      ? "Add To Card"
+      : "Sold Out"
+    : "Combination Unavailable";
+}
+
+// variant btn color change on click functionality
+function variantBtnColorChange() {
+  const btns = document.querySelectorAll("btn.btn");
+  Array.from(btns).forEach((btn) => {
+    for (let i = 0; i < selectedOptions.length; i++) {
+      if (selectedOptions[i] == btn.value) {
+        btn.style.backgroundColor = "black";
+        break;
+      } else btn.style.backgroundColor = "#ff523b";
+    }
+  });
+}
+
+// used in loading images and prices
+function getVariantID() {
+  let variantIDforimg = 0,
+    variantID = 0;
+
+  js.variants.forEach((variant) => {
+    if (variant.option1 == selectedOptions[0] && variant.featured_image) {
+      variantIDforimg = variant.featured_image.variant_ids[0];
+    }
+    if (arraysEqual(variant.options, selectedOptions)) {
+      variantID = variant.id;
+    }
+  });
+  return { variantIDforimg, variantID };
 }
