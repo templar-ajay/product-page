@@ -1712,6 +1712,26 @@ function onClickBtnChangeFunctionality() {
 // 2. assist user in selecting options
 // - create possibility array
 
+// change color row variant buttons on every Alt+p keypress
+
+document.addEventListener("keydown", (e) => {
+  if (e.altKey && e.key == "p") changeColorVariantBtnStyle();
+});
+
+const changeColorVariantBtnStyle = xyz();
+function xyz() {
+  let i = 0;
+  function inner() {
+    console.log(i);
+    if (i == 0) changeToDropDown();
+    else if (i == 1) changeToBtn();
+    else if (i == 2) changeToColorSwatch();
+    else if (i == 3) changeToImageSwatch();
+    i > 2 ? (i = 0) : i++;
+  }
+  return inner;
+}
+
 //#endregion
 
 // declare functions
@@ -1730,10 +1750,10 @@ function createImageObj(jsonData) {
     jsonData.product.images.forEach((image) => {
       if (image.variant_ids[0]) {
         sortedImageObj[`${image.variant_ids}`] = [];
-        sortedImageObj[`${image.variant_ids}`].push(
-          ...sortedImageObj["global-images"],
-          image.src
-        );
+        sortedImageObj[`${image.variant_ids}`].push(image.src);
+        if (lastID != "global-images") {
+          sortedImageObj[lastID].push(...sortedImageObj["global-images"]);
+        }
         lastID = image.variant_ids;
       } else {
         (
@@ -1803,7 +1823,6 @@ function loadOptionsDom() {
 function createOptionsRow(optionRowData) {
   const label = document.createElement("label");
   label.innerText = optionRowData.name;
-
   const row = document.createElement("div");
   row.className = "row";
   row.id = `${optionRowData.position}`;
@@ -1814,16 +1833,17 @@ function createOptionsRow(optionRowData) {
   return [label, row];
 }
 
+// for creating swatch -
+// #check if js.options.option.name = color
+// # if color then for each value of values create a btn with image src = (
+//  loop through js.variants to find the featured image of option1 = blue
+//)
+
 function createVariantButton(value) {
-  const btn = document.createElement("btn");
-  btn.className = "btn";
-  btn.style.margin = "10px";
-  btn.value = value;
-  btn.style.padding = "4px 30px";
-  btn.innerText = value;
-  btn.addEventListener("click", (e) => {
-    onVariantBtnClick(e);
-  });
+  // what to do when
+  const btn = createBtn(value);
+  // function for creating a variant btn
+
   return btn;
 }
 
@@ -1864,9 +1884,6 @@ function checkForCombination() {
 }
 
 function addToCartBtnChange(combinationMade, combinationAvailable) {
-  console.log(`combinationMade`, combinationMade);
-  console.log(`combinationAvailable`, combinationAvailable);
-
   addToCartBtn.style.backgroundColor =
     combinationMade && combinationAvailable ? "#ff523b" : "#808080";
   addToCartBtn.innerText = combinationMade
@@ -1903,4 +1920,45 @@ function getVariantID() {
     }
   });
   return { variantIDforimg, variantID };
+}
+
+// function for creating a color variant image-swatch btn
+function createImageSwatch() {}
+
+// function for creating a color variant color-swatch btn
+function createColorSwatch() {}
+
+// function for creating a color variant dropdown btn
+function createDropdown() {
+  const row1 = document.getElementById("1");
+  row1.innerHTML = "";
+  row1.innerHTML += `<select></select>`;
+  const select = document.getElementsByTagName("select")[0];
+  for (let i = 0; i < js.options.length; i++) {
+    if (js.options[i].position == 1) {
+      for (let j = 0; j < js.options[i].values.length; j++) {
+        select.innerHTML += `<option value="${js.options[i].values[j]}">${js.options[i].values[j]}</option>`;
+      }
+    }
+  }
+  select.addEventListener("change", (e) => {
+    onVariantBtnClick(e);
+  });
+  console.log(`row1`, row1);
+}
+createDropdown();
+
+// function for creating a color variant btn
+function createButton() {}
+function createBtn(value) {
+  const btn = document.createElement("btn");
+  btn.className = "btn";
+  btn.style.margin = "10px";
+  btn.value = value;
+  btn.style.padding = "4px 30px";
+  btn.innerText = value;
+  btn.addEventListener("click", (e) => {
+    onVariantBtnClick(e);
+  });
+  return btn;
 }
