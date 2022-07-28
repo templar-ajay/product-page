@@ -3,6 +3,14 @@
   padding: 0;
   box-sizing: border-box;
 }
+/*  creates a variable to use in whole css file , really usefull in making themes */
+:root {
+  --background-color: #ff523b;
+  --color: #fff;
+  --background-on-hover: #563434;
+  --shadow: 0px 8px 10px 4px gray;
+}
+/*  */
 body {
   font-family: "Poppins", sans-serif;
   background-color: antiquewhite;
@@ -56,10 +64,11 @@ p {
   line-height: 60px;
   margin: 25px 0;
 }
+
 .btn {
   display: inline-block;
-  background: #ff523b;
-  color: #fff;
+  background: var(--background-color);
+  color: var(--color);
   padding: 8px 30px;
   margin: 30px 0;
   border-radius: 30px;
@@ -67,7 +76,21 @@ p {
   cursor: pointer;
 }
 .btn:hover {
-  background: #563434;
+  background: var(--background-on-hover);
+}
+.btn-color-swatch {
+  display: inline-block;
+  background: var(--background-color);
+  color: var(--color);
+  padding: 8px 30px;
+  margin: 30px 0;
+  border-radius: 30px;
+  transition-duration: 0.5s;
+  cursor: pointer;
+  box-shadow: var(--shadow);
+}
+.btn-color-swatch:hover {
+  background: var(--background-on-hover);
 }
 
 .picker-img {
@@ -137,7 +160,7 @@ h4 {
   font-weight: normal;
 }
 .rating .fa {
-  color: #ff523b;
+  color: var(--background-color);
 }
 .col-4:hover {
   transform: translateY(-5px);
@@ -146,7 +169,7 @@ h4 {
 /* -------------------offer--------------------------------- */
 
 .offer {
-  background: radial-gradient(#fff, #ffd6d6);
+  background: radial-gradient(var(--color), #ffd6d6);
   margin-top: 80px;
   padding: 30px 0px;
 }
@@ -180,7 +203,7 @@ small {
 }
 .fa-quote-left {
   font-size: 34px;
-  color: #ff523b;
+  color: var(--background-color);
 }
 .col-3 p {
   font-size: 12px;
@@ -282,7 +305,7 @@ ul {
   margin: 100px auto 50px;
 }
 select {
-  border: 1px solid #ff523b;
+  border: 1px solid var(--background-color);
   padding: 5px;
 }
 select:focus {
@@ -293,7 +316,7 @@ select:focus {
 }
 .page-btn span {
   display: inline-block;
-  border: 1px solid #ff523b;
+  border: 1px solid var(--background-color);
   margin-left: 10px;
   width: 40px;
   height: 40px;
@@ -303,7 +326,7 @@ select:focus {
   transition: background 0.5s;
 }
 .page-btn span:hover {
-  background: #ff523b;
+  background: var(--background-color);
   color: #fff;
 }
 
@@ -334,12 +357,13 @@ select:focus {
   font-size: 20px;
   margin-right: 10px;
   border: 1px solid #ff523b;
+  background-color: white;
 }
 input:focus {
   outline: none;
 }
 .single-product .fa {
-  color: #ff523b;
+  color: var(--background-color);
   margin-left: 10px;
 }
 .small-img-row {
@@ -372,8 +396,8 @@ table {
 th {
   text-align: left;
   padding: 5px;
-  color: #fff;
-  background: #ff523b;
+  color: var(--color);
+  background: var(--background-color);
   font-weight: normal;
 }
 td {
@@ -384,7 +408,7 @@ td input {
   height: 30px;
 }
 td a {
-  color: #ff523b;
+  color: var(--background-color);
   font-size: 12px;
 }
 td img {
@@ -397,7 +421,7 @@ td img {
   justify-content: flex-end;
 }
 .total-price table {
-  border-top: 3px solid #ff523b;
+  border-top: 3px solid var(--background-color);
   width: 100%;
   max-width: 400px;
 }
@@ -412,10 +436,10 @@ th:last-child {
 
 .account-page {
   padding: 50px 0;
-  background: radial-gradient(#fff, #ffd6d6);
+  background: radial-gradient(var(--color), #ffd6d6);
 }
 .form-container {
-  background: #fff;
+  background: var(--color);
   width: 300px;
   height: 400px;
   position: relative;
@@ -472,7 +496,7 @@ form a {
   width: 100px;
   border: none;
   border-radius: 25px;
-  background: #ff523b;
+  background: var(--background-color);
   height: 3px;
   margin-top: 8px;
   transform: translateX(100px);
@@ -538,7 +562,7 @@ form a {
 }
 .mew .btn:hover {
   background: white;
-  color: #ff523b;
+  color: var(--background-color);
   text-decoration: underline;
 }
 .mew #my-name {
