@@ -22,10 +22,12 @@ console.log(`sortedImageObj`, sortedImageObj);
 
 // declare selectedOptions array to store the values of
 // selected options by a user
-let option1 = "Blue",
-  option2 = "Medium",
-  option3 = "Tartan";
-const selectedOptions = [option1, option2, option3];
+// dynamically define SelectedOptions
+const selectedOptions = {};
+js.options?.forEach((option) => {
+  selectedOptions[option.name] = option.values[0];
+});
+console.log(selectedOptions);
 
 loadDynamicContent();
 function loadDynamicContent() {
@@ -82,8 +84,8 @@ function xyz() {
 
 // function to load static data - load title , description , and  initial big image
 function loadStaticData() {
-  title.innerText = js.title;
-  description.innerText = js.description;
+  title.innerHTML = js.title;
+  description.innerHTML = js.description;
   bigImage.src = js.featured_image;
 }
 // function to create Image Obj
@@ -106,7 +108,9 @@ function createImageObj(jsonData) {
     // to push global images to every variant
     for (let key in sortedImageObj) {
       if (key != "global-images") {
-        sortedImageObj[key].push(...sortedImageObj["global-images"]);
+        if (sortedImageObj["global-images"]) {
+          sortedImageObj[key].push(...sortedImageObj["global-images"]);
+        }
       }
     }
     // to delete the global images since we dont need them
@@ -184,7 +188,7 @@ function createOptionsRow(optionRowData) {
   label.innerText = optionRowData.name;
   const row = document.createElement("div");
   row.className = "row";
-  row.id = `${optionRowData.position}`;
+  row.id = `${optionRowData.name}`;
   row.position = `${optionRowData.position}`;
   optionRowData.values.forEach((value) => {
     row.appendChild(createVariantButton(value));
@@ -207,7 +211,7 @@ function createVariantButton(value) {
 }
 
 function onVariantBtnClick(e) {
-  selectedOptions[e.target.parentElement.id - 1] = e.target.value;
+  selectedOptions[e.target.parentElement.id] = e.target.value;
 
   //changes btn attributes - (btn background color to black)
   onClickBtnChangeFunctionality();
@@ -241,7 +245,6 @@ function checkForCombination() {
   }
   return [combinationMade, combinationAvailable];
 }
-
 function addToCartBtnChange(combinationMade, combinationAvailable) {
   addToCartBtn.style.backgroundColor =
     combinationMade && combinationAvailable ? "#ff523b" : "#808080";
@@ -268,10 +271,8 @@ function variantBtnColorChange() {
   const dropdown = document.getElementsByTagName("select")[0];
   if (dropdown) {
     // console.log(dropdown);
-
     dropdown.value = selectedOptions[0];
   }
-
   // for color swatches
   const colorSwatchBtns = document.querySelectorAll("btn.btn-color-swatch");
   Array.from(colorSwatchBtns).forEach((btn) => {
@@ -301,7 +302,7 @@ function getVariantID() {
     variantID = 0;
 
   js.variants.forEach((variant) => {
-    if (variant.option1 == selectedOptions[0] && variant.featured_image) {
+    if (variant.option1 == selectedOptions["Color"] && variant.featured_image) {
       variantIDforimg = variant.featured_image.variant_ids[0];
     }
     if (arraysEqual(variant.options, selectedOptions)) {
