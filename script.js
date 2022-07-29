@@ -1,4 +1,5 @@
-const url = "https://afzal-test-shop.myshopify.com/products/color_box";
+// const url = "https://afzal-test-shop.myshopify.com/products/color_box";
+const url = "https://afzal-test-shop.myshopify.com/products/a-product-for-via";
 
 // Calling that async function
 const js = await getapi(url + ".js");
@@ -95,18 +96,28 @@ function loadStaticData() {
 // function to create Image Obj
 function createImageObj(jsonData) {
   const sortedImageObj = {};
-  let lastID = 0;
+  let arrLastID = [];
   function innerFunction() {
     jsonData.product.images.forEach((image) => {
       if (image.variant_ids[0]) {
-        sortedImageObj[`${image.variant_ids}`] = [];
-        sortedImageObj[`${image.variant_ids}`].push(image.src);
-        lastID = image.variant_ids;
+        image.variant_ids.forEach((variant_id) => {
+          sortedImageObj[variant_id]
+            ? null
+            : (sortedImageObj[`${variant_id}`] = []);
+          sortedImageObj[variant_id].push(image.src);
+        });
+        arrLastID = image.variant_ids;
       } else {
-        (
-          sortedImageObj[`${lastID}`] ||
-          (sortedImageObj[(lastID = "global-images")] = [])
-        ).push(image.src);
+        if (arrLastID.length == 0) {
+          arrLastID.push("global-images");
+        }
+        console.log("arrLastID", arrLastID);
+
+        arrLastID.forEach((lastID) => {
+          (sortedImageObj[`${lastID}`] || (sortedImageObj[lastID] = [])).push(
+            image.src
+          );
+        });
       }
     });
     // to push global images to every variant
@@ -118,7 +129,7 @@ function createImageObj(jsonData) {
       }
     }
     // to delete the global images since we dont need them
-    // actually we need them
+    // actually we need them :)
     // delete sortedImageObj["global-images"];
   }
   innerFunction();
@@ -224,16 +235,6 @@ function onVariantBtnClick(e) {
   loadDynamicContent();
 }
 
-function arraysEqual(a, b) {
-  if (a === b) return true;
-  if (a == null || b == null) return false;
-  if (a.length !== b.length) return false;
-  for (var i = 0; i < a.length; ++i) {
-    if (a[i] !== b[i]) return false;
-  }
-  return true;
-}
-
 // checkForCombination from js
 function checkForCombination() {
   let combinationAvailable = false;
@@ -328,10 +329,14 @@ function getVariantID() {
     )) {
       arr[index] = value;
     }
+
     if (arraysEqual(variant.options, arr)) {
       variantID = variant.id;
+      console.log("variant.id of black simple", variant.id);
     }
   });
+  console.log(`variantIDforimg`, variantIDforimg);
+
   return { variantIDforimg, variantID };
 }
 
@@ -489,3 +494,39 @@ async function getapi(url) {
   var data = response.json();
   return data;
 }
+
+// my own array equals function
+// const condition = arraysEqual(arr1, arr2);
+// function arraysEqual(arr1, arr2) {
+//   let tr = true;
+//   arr1.forEach((e, i) => {
+//     arr2.forEach((l, j) => {
+//       if (i == j) {
+//         if (arr1[i] !== arr2[j]) {
+//           tr = false;
+//         }
+//       }
+//     });
+//   });
+//   return tr;
+// }
+// console.log(condition);
+
+// // // copied from stackOverFlow
+function arraysEqual(a, b) {
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+  return true;
+}
+
+// // random code
+// const mySet = new Set();
+// mySet.add(2);
+// mySet.add(3);
+// const myArr = [2, 3];
+
+// const set_array = arraysEqual(mySet, myArr);
+// console.log(set_array);
