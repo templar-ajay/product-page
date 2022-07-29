@@ -1,4 +1,8 @@
-import { js, jsonData } from "./data.js";
+const url = "https://afzal-test-shop.myshopify.com/products/color_box";
+
+// Calling that async function
+const js = await getapi(url + ".js");
+const jsonData = await getapi(url + ".json");
 
 console.log(`js`, js);
 console.log(`jsonData`, jsonData);
@@ -114,7 +118,8 @@ function createImageObj(jsonData) {
       }
     }
     // to delete the global images since we dont need them
-    delete sortedImageObj["global-images"];
+    // actually we need them
+    // delete sortedImageObj["global-images"];
   }
   innerFunction();
   return sortedImageObj;
@@ -310,8 +315,12 @@ function getVariantID() {
     variantID = 0;
 
   js.variants.forEach((variant) => {
-    if (variant.option1 == selectedOptions["Color"] && variant.featured_image) {
-      variantIDforimg = variant.featured_image.variant_ids[0];
+    if (variant.option1 == selectedOptions["Color"]) {
+      // ya to featured image nahi h
+      if (variant.featured_image) {
+        // option me images nahi de rakhi
+        variantIDforimg = variant.featured_image.variant_ids[0];
+      } else variantIDforimg = "global-images";
     }
     const arr = [];
     for (const [index, [key, value]] of Object.entries(
@@ -338,6 +347,7 @@ function changeToDropDown() {
   createDropdown(row1);
   variantBtnColorChange();
 }
+
 function createDropdown(row1) {
   row1.innerHTML += `<select style="margin: 5px 0px 5px 45px"></select>`;
   const select = document.getElementsByTagName("select")[0];
@@ -449,7 +459,8 @@ function createImageSwatch(values, row1) {
   });
 }
 
-// additional functinality to keep the number of pieces to buy at a time from 1 to 4
+// additional functionality to keep the number of pieces to buy at a time from 1 to 4
+
 buyingLimit(4);
 function buyingLimit(limit) {
   const amountInput = document.getElementById("amount-input");
@@ -468,4 +479,13 @@ function buyingLimit(limit) {
       }, 0);
     }
   });
+}
+
+// Defining async function
+async function getapi(url) {
+  // Storing response
+  const response = await fetch(url);
+  // Storing data in form of JSON
+  var data = response.json();
+  return data;
 }
