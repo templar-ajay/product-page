@@ -233,16 +233,19 @@ function arraysEqual(a, b) {
 function checkForCombination() {
   let combinationAvailable = false;
   let combinationMade = false;
-
-  for (let i = 0; i < js.variants.length; i++) {
-    if (arraysEqual(js.variants[i].options, selectedOptions)) {
-      combinationMade = true;
-      if (js.variants[i].available) {
-        combinationAvailable = true;
-      }
-      break;
-    }
+  // write code to check if the combination is available and whether it is sold by the store.
+  const arr = [];
+  for (const [index, [key, value]] of Object.entries(
+    Object.entries(selectedOptions)
+  )) {
+    arr[index] = value;
   }
+  js.variants?.forEach((variant) => {
+    if (arraysEqual(arr, variant.options)) {
+      combinationMade = true;
+      combinationAvailable = variant.available;
+    }
+  });
   return [combinationMade, combinationAvailable];
 }
 function addToCartBtnChange(combinationMade, combinationAvailable) {
@@ -254,14 +257,15 @@ function addToCartBtnChange(combinationMade, combinationAvailable) {
       : "Sold Out"
     : "Combination Unavailable";
 }
-
 // variant btn color change on click functionality
 function variantBtnColorChange() {
   // for buttons
   const btns = document.querySelectorAll("btn.btn");
   Array.from(btns).forEach((btn) => {
-    for (let i = 0; i < selectedOptions.length; i++) {
-      if (selectedOptions[i] == btn.value) {
+    for (const [index, [key, value]] of Object.entries(
+      Object.entries(selectedOptions)
+    )) {
+      if (value == btn.value) {
         btn.style.backgroundColor = "black";
         break;
       } else btn.style.backgroundColor = "#ff523b";
@@ -271,13 +275,15 @@ function variantBtnColorChange() {
   const dropdown = document.getElementsByTagName("select")[0];
   if (dropdown) {
     // console.log(dropdown);
-    dropdown.value = selectedOptions[0];
+    dropdown.value = selectedOptions["Color"];
   }
   // for color swatches
   const colorSwatchBtns = document.querySelectorAll("btn.btn-color-swatch");
   Array.from(colorSwatchBtns).forEach((btn) => {
-    for (let i = 0; i < selectedOptions.length; i++) {
-      if (selectedOptions[i] == btn.value) {
+    for (const [index, [key, value]] of Object.entries(
+      Object.entries(selectedOptions)
+    )) {
+      if (selectedOptions[key] == btn.value) {
         btn.style.setProperty("--shadow", "0px 0px 0px 2px #ff523b");
         break;
       } else btn.style.setProperty("--shadow", "");
@@ -287,8 +293,10 @@ function variantBtnColorChange() {
   // for image swatches
   const imageSwatchBtns = document.querySelectorAll("input.picker-img");
   Array.from(imageSwatchBtns).forEach((btn) => {
-    for (let i = 0; i < selectedOptions.length; i++) {
-      if (selectedOptions[i] == btn.value) {
+    for (const [index, [key, value]] of Object.entries(
+      Object.entries(selectedOptions)
+    )) {
+      if (selectedOptions[key] == btn.value) {
         btn.style.backgroundColor = "black";
         break;
       } else btn.style.backgroundColor = "";
@@ -305,7 +313,13 @@ function getVariantID() {
     if (variant.option1 == selectedOptions["Color"] && variant.featured_image) {
       variantIDforimg = variant.featured_image.variant_ids[0];
     }
-    if (arraysEqual(variant.options, selectedOptions)) {
+    const arr = [];
+    for (const [index, [key, value]] of Object.entries(
+      Object.entries(selectedOptions)
+    )) {
+      arr[index] = value;
+    }
+    if (arraysEqual(variant.options, arr)) {
       variantID = variant.id;
     }
   });
@@ -318,7 +332,7 @@ function getVariantID() {
 function changeToDropDown() {
   // console.log(`changed to dropdown`);
 
-  const row1 = document.getElementById("1");
+  const row1 = document.getElementById("Color");
   row1.innerHTML = "";
   row1.style.display = "block";
   createDropdown(row1);
@@ -343,7 +357,7 @@ function createDropdown(row1) {
 function changeToBtn() {
   // console.log(`changed to btn`);
 
-  const row1 = document.getElementById("1");
+  const row1 = document.getElementById("Color");
   row1.style.display = "flex";
   row1.innerHTML = "";
   const values = [];
@@ -356,6 +370,7 @@ function changeToBtn() {
   });
   variantBtnColorChange();
 }
+
 // function for creating a color variant btn
 function createBtn(value) {
   const btn = document.createElement("btn");
@@ -373,8 +388,7 @@ function createBtn(value) {
 // function for creating a color variant color-swatch btn
 function changeToColorSwatch() {
   // console.log(`chages to color swatch`);
-
-  const row1 = document.getElementById("1");
+  const row1 = document.getElementById("Color");
   row1.style.display = "flex";
   row1.innerHTML = "";
   const values = [];
@@ -401,7 +415,7 @@ function createColorSwatchBtn(value) {
 
 function changeToImageSwatch() {
   // console.log(`changed to image swatch`);
-  const row1 = document.getElementById("1");
+  const row1 = document.getElementById("Color");
   row1.innerHTML = "";
   row1.style.display = "flex";
   const values = [];
@@ -432,5 +446,26 @@ function createImageSwatch(values, row1) {
       onVariantBtnClick(e);
     });
     row1.appendChild(imageEl);
+  });
+}
+
+// additional functinality to keep the number of pieces to buy at a time from 1 to 4
+buyingLimit(4);
+function buyingLimit(limit) {
+  const amountInput = document.getElementById("amount-input");
+  amountInput.setAttribute("max", `${limit}`);
+  amountInput.addEventListener("keydown", (e) => {
+    const regex = new RegExp(/[0-9]/);
+    if (regex.test(e.key)) {
+      e.target.value = e.key;
+      setTimeout(() => {
+        e.target.value > limit
+          ? e.key > limit
+            ? (e.target.value = limit)
+            : (e.target.value = e.key)
+          : null;
+        e.target.value < 1 ? (e.target.value = 1) : null;
+      }, 0);
+    }
   });
 }
