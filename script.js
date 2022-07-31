@@ -73,7 +73,7 @@ const changeColorVariantBtnStyle = xyz();
 function xyz() {
   let i = 0;
   function inner() {
-    // console.log(i);
+    //
     if (i == 0) changeToDropDown();
     else if (i == 1) changeToColorSwatch();
     else if (i == 2) changeToImageSwatch();
@@ -111,7 +111,6 @@ function createImageObj(jsonData) {
         if (arrLastID.length == 0) {
           arrLastID.push("global-images");
         }
-        console.log("arrLastID", arrLastID);
 
         arrLastID.forEach((lastID) => {
           (sortedImageObj[`${lastID}`] || (sortedImageObj[lastID] = [])).push(
@@ -280,7 +279,7 @@ function variantBtnColorChange() {
   // for dropdowns
   const dropdown = document.getElementsByTagName("select")[0];
   if (dropdown) {
-    // console.log(dropdown);
+    //
     dropdown.value = selectedOptions["Color"];
   }
   // for color swatches
@@ -332,10 +331,9 @@ function getVariantID() {
 
     if (arraysEqual(variant.options, arr)) {
       variantID = variant.id;
-      console.log("variant.id of black simple", variant.id);
     }
   });
-  console.log(`variantIDforimg`, variantIDforimg);
+  //
 
   return { variantIDforimg, variantID };
 }
@@ -344,7 +342,7 @@ function getVariantID() {
 
 // function for creating a color variant dropdown btn
 function changeToDropDown() {
-  // console.log(`changed to dropdown`);
+  // //
 
   const row1 = document.getElementById("Color");
   row1.innerHTML = "";
@@ -366,11 +364,11 @@ function createDropdown(row1) {
   select.addEventListener("change", (e) => {
     onVariantBtnClick(e);
   });
-  // console.log(`row1`, row1);
+  // //
 }
 
 function changeToBtn() {
-  // console.log(`changed to btn`);
+  // //
 
   const row1 = document.getElementById("Color");
   row1.style.display = "flex";
@@ -402,7 +400,7 @@ function createBtn(value) {
 
 // function for creating a color variant color-swatch btn
 function changeToColorSwatch() {
-  // console.log(`chages to color swatch`);
+  // //
   const row1 = document.getElementById("Color");
   row1.style.display = "flex";
   row1.innerHTML = "";
@@ -429,7 +427,7 @@ function createColorSwatchBtn(value) {
 }
 
 function changeToImageSwatch() {
-  // console.log(`changed to image swatch`);
+  // //
   const row1 = document.getElementById("Color");
   row1.innerHTML = "";
   row1.style.display = "flex";
@@ -437,19 +435,27 @@ function changeToImageSwatch() {
   js.options.forEach((option) => {
     option.position == 1 ? values.push(...option.values) : null;
   });
+  console.log(`values to display in image swatch`, values);
+
   createImageSwatch(values, row1);
   variantBtnColorChange();
 }
 
 function createImageSwatch(values, row1) {
   let ArrImageSrc = [];
-  jsonData.product.variants.forEach((variant, index) => {
-    jsonData.product.images.forEach((image) => {
-      if (image.id == variant.image_id) {
-        ArrImageSrc.push(image.src);
+  for (let i = 0; i < values.length; i++) {
+    for (let j = 0; j < js.variants.length; j++) {
+      if (js.variants[j].option1 == values[i]) {
+        if (js.variants[j].featured_image) {
+          ArrImageSrc.push(js.variants[j].featured_image.src);
+          break;
+        } else if (j == js.variants.length - 1) {
+          ArrImageSrc.push(sortedImageObj["global-images"][0]);
+        }
       }
-    });
-  });
+    }
+  }
+
   ArrImageSrc.forEach((imgSrc, index) => {
     const imageEl = document.createElement("input");
     imageEl.type = "image";
@@ -510,7 +516,7 @@ async function getapi(url) {
 //   });
 //   return tr;
 // }
-// console.log(condition);
+// //
 
 // // // copied from stackOverFlow
 function arraysEqual(a, b) {
@@ -529,4 +535,4 @@ function arraysEqual(a, b) {
 // const myArr = [2, 3];
 
 // const set_array = arraysEqual(mySet, myArr);
-// console.log(set_array);
+// //
