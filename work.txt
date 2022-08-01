@@ -1,4 +1,5 @@
-1. add video product functionality
+1. adds stability to the code for various json data. 
+2. small-images-row will show 4 images at a time , more than 4 images will show in form of a slider.
 
 embed video - 
 #yt

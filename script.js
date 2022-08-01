@@ -1,30 +1,28 @@
 // const url = "https://afzal-test-shop.myshopify.com/products/color_box";
-// const url = "https://afzal-test-shop.myshopify.com/products/a-product-for-via";
+const url = "https://afzal-test-shop.myshopify.com/products/a-product-for-via";
 
-// // Calling that async function
-// const js = await getapi(url + ".js");
-// const jsonData = await getapi(url + ".json");
+// Calling that async function
+const js = await getapi(url + ".js"),
+  jsonData = await getapi(url + ".json");
 
-import { js, jsonData } from "./data.js";
+// import { js, jsonData } from "./data.js";
 
 console.log(`js`, js);
 console.log(`jsonData`, jsonData);
 
-const bigImage = document.getElementById("big-img");
-const bigVideo = document.getElementById("big-video");
-const smallImagesRow = document.getElementsByClassName("small-img-row")[0];
+const bigImage = document.getElementById("big-img"),
+  bigVideo = document.getElementById("big-video"),
+  smallImagesRow = document.getElementsByClassName("small-img-row")[0],
+  title = document.getElementById("title"),
+  description = document.getElementById("description"),
+  price = document.getElementById("price"),
+  comparedPrice = document.getElementById("compared-price"),
+  addToCartBtn = document.querySelector("a.btn"),
+  variantsDiv = document.querySelector("#variants");
 
-const title = document.getElementById("title");
-const description = document.getElementById("description");
-const price = document.getElementById("price");
-const comparedPrice = document.getElementById("compared-price");
-const addToCartBtn = document.querySelector("a.btn");
-const variantsDiv = document.querySelector("#variants");
-
-// load static data
 loadStaticData();
 
-// sortedImagesObj to show iamges variant wise
+// sortedImagesObj to show images variant wise
 const sortedImageObj = createImageObj(jsonData);
 console.log(`sortedImageObj`, sortedImageObj);
 
@@ -45,25 +43,6 @@ function loadDynamicContent() {
   loadPrices(getVariantID().variantID);
   loadBigImage();
   loadmedia();
-  function loadmedia() {
-    sortedImageObj["global-media"].forEach(([id, mediaSrc]) => {
-      const imgCol = document.createElement("div");
-      imgCol.className = "small-img-col";
-      const video = document.createElement("div");
-      video.className = "video";
-      video.addEventListener("click", onVideoClick);
-      const a = document.createElement("a");
-      // a.href = "";
-      const mediaImg = document.createElement("img");
-      mediaImg.className = "media-image";
-      mediaImg.src = mediaSrc;
-      mediaImg.id = id;
-      video.appendChild(mediaImg);
-      video.appendChild(a);
-      imgCol.appendChild(video);
-      smallImagesRow.appendChild(imgCol);
-    });
-  }
 }
 
 // load options from js
@@ -586,7 +565,7 @@ function loadBigImage(imgSrc) {
     bigImage.src = imgSrc;
   } else {
     const firstSmallImage = document.querySelector(".small-img-col img");
-    bigImage.src = firstSmallImage?.src;
+    bigImage.src = firstSmallImage?.src || "";
   }
 }
 
@@ -605,12 +584,12 @@ function onVideoClick(e) {
 function displayVideo(mediaObj) {
   if (mediaObj.media_type == "external_video") {
     if (mediaObj.host == "youtube") {
-      bigVideo.innerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${mediaObj.external_id}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+      bigVideo.innerHTML = `<iframe width="475" height="310" src="https://www.youtube-nocookie.com/embed/${mediaObj.external_id}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
     } else if (mediaObj.host == "vimeo") {
       bigVideo.innerHTML = `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/${mediaObj.external_id}?h=e7e9d7498c&color=ffffff&title=0&byline=0&portrait=0&autoplay=1&loop=1&autopause=0"" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0"  allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>`;
     }
   } else if (mediaObj.media_type == "video") {
-    bigVideo.innerHTML = `<video id="myVideo" src = "${mediaObj.sources[0].url}" width="560" height="315">`;
+    bigVideo.innerHTML = `<video id="myVideo" src = "${mediaObj.sources[0].url}" width="475" height="310">`;
     myVideo.load();
     myVideo.play();
     myVideo.addEventListener("click", () => {
@@ -620,4 +599,24 @@ function displayVideo(mediaObj) {
 
   bigImage.style.display = "none";
   bigVideo.style.display = "block";
+}
+
+function loadmedia() {
+  sortedImageObj["global-media"]?.forEach(([id, mediaSrc]) => {
+    const imgCol = document.createElement("div");
+    imgCol.className = "small-img-col";
+    const video = document.createElement("div");
+    video.className = "video";
+    video.addEventListener("click", onVideoClick);
+    const a = document.createElement("a");
+    // a.href = "";
+    const mediaImg = document.createElement("img");
+    mediaImg.className = "media-image";
+    mediaImg.src = mediaSrc;
+    mediaImg.id = id;
+    video.appendChild(mediaImg);
+    video.appendChild(a);
+    imgCol.appendChild(video);
+    smallImagesRow.appendChild(imgCol);
+  });
 }

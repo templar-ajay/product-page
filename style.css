@@ -370,9 +370,14 @@ input:focus {
   display: inline-flex;
   justify-content: space-between;
 }
+.scroll {
+  overflow-y: hidden;
+  overflow-x: scroll;
+}
 .small-img-col {
   flex-basis: 24%;
   cursor: pointer;
+  width: 120px;
 }
 
 .video {
@@ -387,7 +392,7 @@ input:focus {
   width: 40%;
   top: 22px;
   left: 35px;
-  background-size: 50px 50px;
+  background-size: 35px 35px;
   background-repeat: no-repeat;
 }
 
