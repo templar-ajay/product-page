@@ -1,9 +1,11 @@
 // const url = "https://afzal-test-shop.myshopify.com/products/color_box";
-const url = "https://afzal-test-shop.myshopify.com/products/a-product-for-via";
+// const url = "https://afzal-test-shop.myshopify.com/products/a-product-for-via";
 
-// Calling that async function
-const js = await getapi(url + ".js");
-const jsonData = await getapi(url + ".json");
+// // Calling that async function
+// const js = await getapi(url + ".js");
+// const jsonData = await getapi(url + ".json");
+
+import { js, jsonData } from "./data.js";
 
 console.log(`js`, js);
 console.log(`jsonData`, jsonData);
@@ -31,10 +33,10 @@ console.log(`sortedImageObj`, sortedImageObj);
 const selectedOptions = {};
 js.options?.forEach((option) => {
   selectedOptions[option.name] = option.values[0];
+  loadDynamicContent();
 });
 console.log(selectedOptions);
 
-loadDynamicContent();
 function loadDynamicContent() {
   // load small images from our sortedImageObj ,load price , compared price,
   // also changes big image according to small images
@@ -42,7 +44,7 @@ function loadDynamicContent() {
   loadPrices(getVariantID().variantID);
   function loadBigImage() {
     const firstSmallImage = document.querySelector(".small-img-col img");
-    bigImage.src = firstSmallImage.src;
+    bigImage.src = firstSmallImage?.src;
   }
   loadBigImage();
 }
@@ -138,7 +140,7 @@ function createImageObj(jsonData) {
 // load small images
 function loadSmallImages(variantID) {
   smallImagesRow.innerHTML = "";
-  sortedImageObj[`${variantID}`].forEach((imageUrl, index) => {
+  sortedImageObj[`${variantID}`]?.forEach((imageUrl, index) => {
     smallImagesRow.appendChild(createSmallImage(imageUrl));
   });
 }
@@ -239,12 +241,8 @@ function checkForCombination() {
   let combinationAvailable = false;
   let combinationMade = false;
   // write code to check if the combination is available and whether it is sold by the store.
-  const arr = [];
-  for (const [index, [key, value]] of Object.entries(
-    Object.entries(selectedOptions)
-  )) {
-    arr[index] = value;
-  }
+  const arr = arrayOfObjectValues(selectedOptions);
+
   js.variants?.forEach((variant) => {
     if (arraysEqual(arr, variant.options)) {
       combinationMade = true;
@@ -315,7 +313,8 @@ function getVariantID() {
     variantID = 0;
 
   js.variants.forEach((variant) => {
-    if (variant.option1 == selectedOptions["Color"]) {
+    let arrayOfSelectedOptionValues = arrayOfObjectValues(selectedOptions);
+    if (arraysEqual(arrayOfSelectedOptionValues, variant.options)) {
       // ya to featured image nahi h
       if (variant.featured_image) {
         // option me images nahi de rakhi
@@ -355,7 +354,7 @@ function createDropdown(row1) {
   row1.innerHTML += `<select style="margin: 5px 0px 5px 45px"></select>`;
   const select = document.getElementsByTagName("select")[0];
   for (let i = 0; i < js.options.length; i++) {
-    if (js.options[i].position == 1) {
+    if (js.options[i].name == "Color") {
       for (let j = 0; j < js.options[i].values.length; j++) {
         select.innerHTML += `<option value="${js.options[i].values[j]}">${js.options[i].values[j]}</option>`;
       }
@@ -368,14 +367,12 @@ function createDropdown(row1) {
 }
 
 function changeToBtn() {
-  // //
-
   const row1 = document.getElementById("Color");
   row1.style.display = "flex";
   row1.innerHTML = "";
   const values = [];
   js.options.forEach((option) => {
-    option.position == 1 ? values.push(...option.values) : null;
+    option.name == "Color" ? values.push(...option.values) : null;
   });
   values.forEach((value) => {
     const btn = createBtn(value);
@@ -406,7 +403,7 @@ function changeToColorSwatch() {
   row1.innerHTML = "";
   const values = [];
   js.options.forEach((option) => {
-    option.position == 1 ? values.push(...option.values) : null;
+    option.name == "Color" ? values.push(...option.values) : null;
   });
   values.forEach((value) => {
     const btn = createColorSwatchBtn(value);
@@ -427,13 +424,12 @@ function createColorSwatchBtn(value) {
 }
 
 function changeToImageSwatch() {
-  // //
   const row1 = document.getElementById("Color");
   row1.innerHTML = "";
   row1.style.display = "flex";
   const values = [];
   js.options.forEach((option) => {
-    option.position == 1 ? values.push(...option.values) : null;
+    option.name == "Color" ? values.push(...option.values) : null;
   });
   console.log(`values to display in image swatch`, values);
 
@@ -445,7 +441,7 @@ function createImageSwatch(values, row1) {
   let ArrImageSrc = [];
   for (let i = 0; i < values.length; i++) {
     for (let j = 0; j < js.variants.length; j++) {
-      if (js.variants[j].option1 == values[i]) {
+      if (js.variants[j][`option${getColorPosition()}`] == values[i]) {
         if (js.variants[j].featured_image) {
           ArrImageSrc.push(js.variants[j].featured_image.src);
           break;
@@ -536,3 +532,21 @@ function arraysEqual(a, b) {
 
 // const set_array = arraysEqual(mySet, myArr);
 // //
+
+function getColorPosition() {
+  let colorPosition = null;
+  js.options.forEach((option) => {
+    option.name == "Color" ? (colorPosition = option.position) : null;
+  });
+  return colorPosition;
+}
+
+function arrayOfObjectValues(givenObject) {
+  const arr = [];
+  for (const [index, [key, value]] of Object.entries(
+    Object.entries(givenObject)
+  )) {
+    arr[index] = value;
+  }
+  return arr;
+}
