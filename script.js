@@ -11,6 +11,7 @@ console.log(`js`, js);
 console.log(`jsonData`, jsonData);
 
 const bigImage = document.getElementById("big-img");
+const bigVideo = document.getElementById("big-video");
 const smallImagesRow = document.getElementsByClassName("small-img-row")[0];
 
 const title = document.getElementById("title");
@@ -42,16 +43,32 @@ function loadDynamicContent() {
   // also changes big image according to small images
   loadSmallImages(getVariantID().variantIDforimg);
   loadPrices(getVariantID().variantID);
-  function loadBigImage() {
-    const firstSmallImage = document.querySelector(".small-img-col img");
-    bigImage.src = firstSmallImage?.src;
-  }
   loadBigImage();
+  loadmedia();
+  function loadmedia() {
+    sortedImageObj["global-media"].forEach(([id, mediaSrc]) => {
+      const imgCol = document.createElement("div");
+      imgCol.className = "small-img-col";
+      const video = document.createElement("div");
+      video.className = "video";
+      video.addEventListener("click", onVideoClick);
+      const a = document.createElement("a");
+      // a.href = "";
+      const mediaImg = document.createElement("img");
+      mediaImg.className = "media-image";
+      mediaImg.src = mediaSrc;
+      mediaImg.id = id;
+      video.appendChild(mediaImg);
+      video.appendChild(a);
+      imgCol.appendChild(video);
+      smallImagesRow.appendChild(imgCol);
+    });
+  }
 }
 
 // load options from js
 loadOptionsDom();
-// aslo loads variant option buttons
+// also loads variant option buttons
 
 // 1. make sold out visible on add to cart
 // # check if selected combination is available -
@@ -62,20 +79,23 @@ function onClickBtnChangeFunctionality() {
   addToCartBtnChange(...checkForCombination());
 }
 
+/* will work on this later if needed
 // 2. assist user in selecting options
 // - create possibility array
-
+*/
 // change color row variant buttons on every Alt+p keypress
 
 document.addEventListener("keydown", (e) => {
   if (e.altKey && e.key == "p") changeColorVariantBtnStyle();
 });
 
-const changeColorVariantBtnStyle = xyz();
-function xyz() {
+// ##############################################################################################################################
+// declare functions
+
+const changeColorVariantBtnStyle = foo();
+function foo() {
   let i = 0;
   function inner() {
-    //
     if (i == 0) changeToDropDown();
     else if (i == 1) changeToColorSwatch();
     else if (i == 2) changeToImageSwatch();
@@ -84,10 +104,6 @@ function xyz() {
   }
   return inner;
 }
-
-//#endregion
-
-// declare functions
 
 // function to load static data - load title , description , and  initial big image
 function loadStaticData() {
@@ -132,6 +148,16 @@ function createImageObj(jsonData) {
     // to delete the global images since we dont need them
     // actually we need them :)
     // delete sortedImageObj["global-images"];
+
+    // to add media thumbnails with key "global-media"
+    js.media.forEach((e) => {
+      e.media_type != "image"
+        ? (
+            sortedImageObj["global-media"] ||
+            (sortedImageObj["global-media"] = [])
+          ).push([e.id, e.preview_image.src])
+        : null;
+    });
   }
   innerFunction();
   return sortedImageObj;
@@ -140,7 +166,7 @@ function createImageObj(jsonData) {
 // load small images
 function loadSmallImages(variantID) {
   smallImagesRow.innerHTML = "";
-  sortedImageObj[`${variantID}`]?.forEach((imageUrl, index) => {
+  sortedImageObj[`${variantID}`]?.forEach((imageUrl) => {
     smallImagesRow.appendChild(createSmallImage(imageUrl));
   });
 }
@@ -163,7 +189,7 @@ function createSmallImage(imageUrl) {
 
 // on small Image Click
 function onSmallImageClick(e) {
-  bigImage.src = e.target.src;
+  loadBigImage(e.target.src);
 }
 
 // load prices by variant ID using js
@@ -549,4 +575,49 @@ function arrayOfObjectValues(givenObject) {
     arr[index] = value;
   }
   return arr;
+}
+
+function loadBigImage(imgSrc) {
+  if (bigImage.style.display == "none") {
+    bigImage.style.display = "";
+    bigVideo.style.display = "none";
+  }
+  if (imgSrc) {
+    bigImage.src = imgSrc;
+  } else {
+    const firstSmallImage = document.querySelector(".small-img-col img");
+    bigImage.src = firstSmallImage?.src;
+  }
+}
+
+function onVideoClick(e) {
+  console.log(`e.target`, e.target);
+  console.log(
+    `e.target.parentElement.childNodes[0].src = `,
+    e.target.parentElement.childNodes[0].id
+  );
+  js.media.forEach((media) => {
+    media.id == e.target.parentElement.childNodes[0].id
+      ? displayVideo(media)
+      : null;
+  });
+}
+function displayVideo(mediaObj) {
+  if (mediaObj.media_type == "external_video") {
+    if (mediaObj.host == "youtube") {
+      bigVideo.innerHTML = `<iframe width="560" height="315" src="https://www.youtube-nocookie.com/embed/${mediaObj.external_id}?autoplay=1" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+    } else if (mediaObj.host == "vimeo") {
+      bigVideo.innerHTML = `<div style="padding:56.25% 0 0 0;position:relative;"><iframe src="https://player.vimeo.com/video/${mediaObj.external_id}?h=e7e9d7498c&color=ffffff&title=0&byline=0&portrait=0&autoplay=1&loop=1&autopause=0"" style="position:absolute;top:0;left:0;width:100%;height:100%;" frameborder="0"  allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe></div><script src="https://player.vimeo.com/api/player.js"></script>`;
+    }
+  } else if (mediaObj.media_type == "video") {
+    bigVideo.innerHTML = `<video id="myVideo" src = "${mediaObj.sources[0].url}" width="560" height="315">`;
+    myVideo.load();
+    myVideo.play();
+    myVideo.addEventListener("click", () => {
+      myVideo.paused || myVideo.ended ? myVideo.play() : myVideo.pause();
+    });
+  }
+
+  bigImage.style.display = "none";
+  bigVideo.style.display = "block";
 }

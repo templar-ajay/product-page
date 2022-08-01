@@ -375,6 +375,22 @@ input:focus {
   cursor: pointer;
 }
 
+.video {
+  position: relative;
+}
+
+.video a {
+  position: absolute;
+  display: block;
+  background: url(http://www.slatecube.com/images/play-btn.png);
+  height: 50px;
+  width: 40%;
+  top: 22px;
+  left: 35px;
+  background-size: 50px 50px;
+  background-repeat: no-repeat;
+}
+
 /* ------cart items----- */
 
 .cart-page {

@@ -1,6 +1,4 @@
 1. add video product functionality
-2. check code for - if color variant is at second position
-3. what if product images dont change due to color , what if they change due to size or material etc.
 
 embed video - 
 #yt
